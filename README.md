@@ -1,3 +1,5 @@
+adding -o outputfile option
+
 # gocov
 
 Coverage reporting tool for The Go Programming Language
