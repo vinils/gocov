@@ -102,6 +102,6 @@ func runTests(args []string) error {
 
 	// Merge the profiles.
 	out, err := convert.ConvertProfiles(files...)
-	os.Stdout.Write(out)
+	writeOutput(out)
 	return err
 }

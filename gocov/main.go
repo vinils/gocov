@@ -32,7 +32,7 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage:\n\n\tgocov command [arguments]\n\n")
+	fmt.Fprintf(os.Stderr, "Usage:\n\n\tgocov [-o <output_file>] command [arguments]\n\n")
 	fmt.Fprintf(os.Stderr, "The commands are:\n\n")
 	fmt.Fprintf(os.Stderr, "\tannotate\n")
 	fmt.Fprintf(os.Stderr, "\tconvert\n")
@@ -56,8 +56,29 @@ func unmarshalJson(data []byte) (packages []*gocov.Package, err error) {
 	return
 }
 
+var outputFilePath *string
+
+func writeOutput(output []byte) {
+	os.Stdout.Write(output)
+	if *outputFilePath != "" {
+		file, err := os.Create(*outputFilePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "gocov: failed to create output file: %s\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+
+		_, err = file.Write(output)
+		if err != nil {
+			fmt.Printf("Error writing to file: %v\n", err)
+			return
+		}
+	}
+}
+
 func main() {
 	flag.Usage = usage
+	outputFilePath = flag.String("o", "", "Output filename (optional)")
 	flag.Parse()
 
 	command := ""
@@ -74,7 +95,7 @@ func main() {
 				fmt.Fprintln(os.Stderr, "error:", err)
 				os.Exit(1)
 			}
-			os.Stdout.Write(out)
+			writeOutput(out)
 		case "annotate":
 			os.Exit(annotateSource())
 		case "report":
